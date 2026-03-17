@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -12,7 +11,7 @@
 
 body{
 margin:0;
-font-family:Arial;
+font-family:Arial, sans-serif;
 background:#4e342e;
 color:white;
 display:flex;
@@ -29,40 +28,34 @@ max-width:900px;
 
 .titulo{
 font-size:48px;
-margin-bottom:40px;
+margin-bottom:30px;
 }
 
 .texto{
-font-size:34px;
-line-height:1.4;
-margin-bottom:40px;
+font-size:32px;
+margin-bottom:30px;
 }
 
 input{
-
-width:80%;
-padding:20px;
-font-size:32px;
+width:70%;
+padding:18px;
+font-size:28px;
 border-radius:10px;
 border:none;
 text-align:center;
-
 }
 
 .botao{
-
-margin-top:40px;
-padding:20px 50px;
-font-size:28px;
+margin-top:30px;
+padding:18px 40px;
+font-size:26px;
 border:none;
 border-radius:10px;
 background:#ffca28;
 cursor:pointer;
-
 }
 
 </style>
-
 </head>
 
 <body>
@@ -77,46 +70,27 @@ cursor:pointer;
 
 <br>
 
-<button id="continuar" class="botao">
-Começar
-</button>
+<button id="continuar" class="botao">Começar</button>
 
 </div>
 
 <script>
 
 let precoCafe = 920
-
 let passo = -1
-
 let dados = {}
 
-let vozes=[]
-
-speechSynthesis.onvoiceschanged = ()=>{
-vozes = speechSynthesis.getVoices()
-}
-
 let perguntas = [
-
 "Quantas sacas de café você colheu?",
-
 "Quantos hectares de café você tem?",
-
 "Quanto você gastou com mão de obra?",
-
 "Quanto você gastou com adubo?",
-
 "Quanto você gastou com agrotóxicos?",
-
 "Quanto você gastou com máquinas ou trator?",
-
 "Quanto você gastou com transporte?"
-
 ]
 
 let campos = [
-
 "sacas",
 "hectares",
 "mao",
@@ -124,21 +98,17 @@ let campos = [
 "agro",
 "trator",
 "transporte"
-
 ]
 
 function falar(texto){
 
+if(!('speechSynthesis' in window)) return
+
 speechSynthesis.cancel()
 
 let msg = new SpeechSynthesisUtterance(texto)
-
 msg.lang="pt-BR"
 msg.rate=0.9
-
-let voz = vozes.find(v=>v.lang.includes("pt"))
-
-if(voz) msg.voice=voz
 
 speechSynthesis.speak(msg)
 
@@ -146,16 +116,14 @@ speechSynthesis.speak(msg)
 
 function mostrarInicio(){
 
-let texto =
-
-"O preço médio da saca de café hoje é "+
-precoCafe+
-" reais. "+
-"Este assistente vai ajudar você a calcular o lucro aproximado da sua safra."
+let texto = 
+"O preço médio da saca de café hoje é "+precoCafe+
+" reais. Este programa ajuda a calcular o lucro aproximado da sua safra."
 
 document.getElementById("texto").innerText = texto
-
 document.getElementById("entrada").style.display="none"
+
+falar(texto)
 
 }
 
@@ -163,14 +131,13 @@ function proximaPergunta(){
 
 passo++
 
-if(passo>=perguntas.length){
+if(passo >= perguntas.length){
 calcular()
 return
 }
 
 document.getElementById("entrada").value=""
-
-document.getElementById("entrada").style.display="block"
+document.getElementById("entrada").style.display="inline"
 
 let pergunta = perguntas[passo]
 
@@ -182,26 +149,18 @@ falar(pergunta)
 
 document.getElementById("continuar").onclick=function(){
 
-speechSynthesis.resume()
-
-if(passo==-1){
-
-falar(document.getElementById("texto").innerText)
+if(passo == -1){
 
 proximaPergunta()
-
 return
 
 }
 
 let valor = document.getElementById("entrada").value
 
-if(valor===""){
-
+if(valor == ""){
 alert("Digite um número")
-
 return
-
 }
 
 dados[campos[passo]] = Number(valor)
@@ -213,7 +172,6 @@ proximaPergunta()
 function calcular(){
 
 let custo =
-
 dados.mao +
 dados.adubo +
 dados.agro +
@@ -226,31 +184,53 @@ let lucro = receita - custo
 
 let minimo = custo / dados.sacas
 
-let resultado =
+let textoFinal = ""
 
-"Resultado aproximado da safra. "+
-"O lucro aproximado é "+
-lucro.toFixed(2)+
-" reais. "+
-"O preço mínimo da saca para não ter prejuízo é "+
-minimo.toFixed(2)+
-" reais. "+
-"Esses valores são estimativas."
+if(lucro > 0){
 
-document.getElementById("entrada").style.display="none"
-
-document.getElementById("continuar").style.display="none"
-
-document.getElementById("texto").innerText = resultado
-
-falar(resultado)
+textoFinal =
+"Vamos analisar sua produção. " +
+"Você produziu aproximadamente " + dados.sacas + " sacas de café. " +
+"Com o preço atual da saca em " + precoCafe + " reais, sua receita aproximada foi de " +
+receita.toFixed(2) + " reais. " +
+"O seu custo total de produção foi de aproximadamente " +
+custo.toFixed(2) + " reais. " +
+"Isso significa que você teve um lucro aproximado de " +
+lucro.toFixed(2) + " reais nesta safra. " +
+"Para não ter prejuízo, o preço mínimo da sua saca precisaria ser de aproximadamente " +
+minimo.toFixed(2) + " reais. " +
+"Esses valores são estimativas e servem apenas para ajudar você a entender melhor a situação da sua produção."
 
 }
 
+else{
+
+textoFinal =
+"Vamos analisar sua produção. " +
+"Você produziu aproximadamente " + dados.sacas + " sacas de café. " +
+"Com o preço atual da saca em " + precoCafe + " reais, sua receita aproximada foi de " +
+receita.toFixed(2) + " reais. " +
+"O seu custo total de produção foi de aproximadamente " +
+custo.toFixed(2) + " reais. " +
+"Neste cenário, infelizmente sua produção teve um prejuízo aproximado de " +
+Math.abs(lucro).toFixed(2) + " reais. " +
+"Para não ter prejuízo, o preço mínimo da sua saca precisaria ser de aproximadamente " +
+minimo.toFixed(2) + " reais. " +
+"Esses valores são estimativas e servem apenas para ajudar você a entender melhor a situação da sua produção."
+
+}
+
+document.getElementById("entrada").style.display="none"
+document.getElementById("continuar").style.display="none"
+
+document.getElementById("texto").innerText = textoFinal
+
+falar(textoFinal)
+
+}
 mostrarInicio()
 
 </script>
 
 </body>
-
 </html>
